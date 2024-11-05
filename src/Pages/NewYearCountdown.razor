@@ -1,0 +1,27 @@
+﻿@page "/new-year-countdown"
+
+<PageTitle>New Year Countdown</PageTitle>
+
+<h1>New Year Countdown</h1>
+
+<p class="mt-5">Time left until the new year @newYear.Year</p>
+
+<h3>@GetTimeLeft()</h3>
+
+@code {
+    private DateTime newYear = new DateTime(DateTime.Now.Year + 1, 1, 1, 0, 0, 0);
+
+    override protected void OnInitialized()
+    {
+        System.Timers.Timer timer = new(1000);
+        timer.Elapsed += (sender, e) => InvokeAsync(StateHasChanged);
+        timer.Start();
+    }
+
+    private string GetTimeLeft()
+    {
+        var timeLeft = newYear - DateTime.Now;
+
+        return $"{timeLeft.Days} days, {timeLeft.Hours} hours, {timeLeft.Minutes} minutes, {timeLeft.Seconds} seconds";
+    }
+}

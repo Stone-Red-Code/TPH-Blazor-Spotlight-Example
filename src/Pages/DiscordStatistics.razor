@@ -1,0 +1,61 @@
+﻿@page "/statistics"
+
+@inject HttpClient HttpClient
+
+<PageTitle>Discord Statistics</PageTitle>
+
+<h1>Discord Statistics</h1>
+
+<p class="mt-5">Discord invite link</p>
+
+<InputText class="input-group-text mb-3" style="width: 20rem" @bind-Value="discordInviteLink" />
+
+<button class="btn btn-primary mx-2 mb-3" style="width: fit-content" @onclick="Fetch">Fetch</button>
+
+<p class="text-danger">
+    @errorMessage
+</p>
+
+@if (discordInvite != null)
+{
+    <div class="d-flex row gap-3 justify-content-center text-center">
+        <div class="card bg-dark" style="max-width: 50rem">
+            <div class="card-body">
+                <h5 class="card-title">
+                    @discordInvite.Guild.Name
+                </h5>
+                <h6 class="card-subtitle mb-4 text-muted">
+                    @discordInvite.Guild.Description
+                </h6>
+                <p class="card-text m-1">Invite Code: <a href="https://discord.gg/@discordInvite.Code">discord.gg/@discordInvite.Code</a></p>
+                <p class="card-text m-1">Total Members: @discordInvite.ApproximateMemberCount</p>
+                <p class="card-text m-1">Total Online Members: @discordInvite.ApproximatePresenceCount</p>
+                <p class="card-text m-1">Boosts: @discordInvite.Guild.PremiumSubscriptionCount</p>
+            </div>
+        </div>
+    </div>
+}
+
+
+@code {
+    private string discordInviteLink = "https://discord.gg/programming";
+
+    private string errorMessage = string.Empty;
+    private DiscordInvite? discordInvite = null;
+
+    private async Task Fetch()
+    {
+        var response = await HttpClient.GetAsync($"https://discord.com/api/invites/{discordInviteLink.Split("/").LastOrDefault()}?with_counts=true");
+
+        if (response.IsSuccessStatusCode)
+        {
+            discordInvite = await response.Content.ReadFromJsonAsync<DiscordInvite>();
+
+            errorMessage = string.Empty;
+        }
+        else
+        {
+            errorMessage = await response.Content.ReadAsStringAsync();
+        }
+    }
+}
